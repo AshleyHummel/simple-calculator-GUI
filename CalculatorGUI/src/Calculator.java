@@ -187,9 +187,3 @@ public class Calculator implements ActionListener
 	}
 
 }
-
-
-/* CHANGELOG
- * 
- * Modified the look of the GUI to be cross platform.
- */
