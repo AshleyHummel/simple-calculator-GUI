@@ -12,7 +12,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -30,13 +30,19 @@ public class Calculator implements ActionListener
     private static final int BUTTON_HEIGHT = 15;
     private static final int GAP = 5;
     
-    //initialize color and font
+    //initialize font
 	private Font font;
 	
 	private JFrame frame;
 	
 	private JTextField inputText;
+	private String text;
 	private JButton btnBack, btnClear;
+	
+	private JPanel numberPanel;
+	private JButton[] numbers;
+	private JPanel operationsPanel;
+	private JButton[] operations;
 	
 	public Calculator() 
 	{
@@ -58,7 +64,7 @@ public class Calculator implements ActionListener
 		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		frame.setResizable(false);
 		
-		//initialize font and colors
+		//initialize font and color
 		font = new Font("Monospaced", Font.BOLD, 18);
 		
 		GridLayout topLayout = new GridLayout(2, 1);
@@ -68,6 +74,7 @@ public class Calculator implements ActionListener
 		
 		//set property of input textfield
 		inputText = new JTextField(20);
+		text = "";
 		inputText.setForeground(Color.BLACK); //text color
 		inputText.setBackground(Color.WHITE);
 		inputText.setBorder(BorderFactory.createBevelBorder(0));
@@ -106,7 +113,8 @@ public class Calculator implements ActionListener
 		GridLayout numberLayout = new GridLayout(4, 3);
 		numberLayout.setHgap(GAP);
 		numberLayout.setVgap(GAP);
-		JPanel numberPanel = new JPanel(numberLayout);
+		numbers = new JButton[12];
+		numberPanel = new JPanel(numberLayout);
 		
 		//define number button values
 		String[] btnValues  = {
@@ -119,10 +127,10 @@ public class Calculator implements ActionListener
 		//configure number buttons using String array btnValues, and add to number panel
 		for(int i = 0; i < btnValues.length; i++) 
 		{
-			JButton btn = new JButton(btnValues[i]);
-			configureButton(btn);
+			numbers[i] = new JButton(btnValues[i]);
+			configureButton(numbers[i]);
 			
-			numberPanel.add(btn);
+			numberPanel.add(numbers[i]);
 		}
 		btnsPanel.add(numberPanel);
 		
@@ -130,12 +138,13 @@ public class Calculator implements ActionListener
 		GridLayout operationsLayout = new GridLayout(4, 1);
 		operationsLayout.setHgap(GAP);
 		operationsLayout.setVgap(GAP);
-		JPanel operationsPanel = new JPanel(operationsLayout);
+		operations = new JButton[4];
+		operationsPanel = new JPanel(operationsLayout);
 		
 		
 		//define operation button values
 		String[] operationValues  = {
-				"÷",
+				"/",
 				"x",
 				"-",
 				"+"
@@ -144,11 +153,10 @@ public class Calculator implements ActionListener
 		//configure operation buttons using String array operationValues, and add to operations panel
 		for(int i = 0; i < operationValues.length; i++) 
 		{
-			JButton btn = new JButton(operationValues[i]);
-			configureButton(btn);
-			btn.setBorder(BorderFactory.createBevelBorder(0));
+			operations[i] = new JButton(operationValues[i]);
+			configureButton(operations[i]);
 			
-			operationsPanel.add(btn);
+			operationsPanel.add(operations[i]);
 		}
 		btnsPanel.add(operationsPanel);
 		
@@ -176,8 +184,39 @@ public class Calculator implements ActionListener
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		//TODO
+	public void actionPerformed(ActionEvent e) 
+	{
+		//number, decimal, and "equals" buttons
+		for(int index = 0; index < numbers.length; index++)
+		{
+			if(e.getSource() == numbers[index]) {
+				text += e.getActionCommand();
+				System.out.println("Button clicked");
+				inputText.setText(text);				//print previous inputs + button clicked
+			}
+		}
+		
+		//operation (divide, multiply, add, subtract) buttons
+		for(int index = 0; index < operations.length; index++)
+		{
+			if(e.getSource() == operations[index]) {
+				text += e.getActionCommand();
+				System.out.println("Button clicked");
+				inputText.setText(text);				//print previous inputs + button clicked
+			}
+		}
+		
+		//"backspace" button
+		if(e.getSource() == btnBack) {
+			text = text.substring(0, text.length() - 1); //remove most recent input
+			inputText.setText(text);
+		}
+		
+		//"clear" button
+		if(e.getSource() == btnClear) {
+			text = ""; //reset input in textfield
+			inputText.setText(text);
+		}
 	}
 
 	public static void main(String[] args) 
