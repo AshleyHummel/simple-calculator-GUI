@@ -208,8 +208,6 @@ public class Calculator implements ActionListener
 		
 	}
 	
-	//TODO eliminate calculation errors (user input flaws)
-	
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
