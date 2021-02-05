@@ -1,3 +1,5 @@
+//Calculates user input and returns a total
+
 import java.text.DecimalFormat;
 
 public class Logic 

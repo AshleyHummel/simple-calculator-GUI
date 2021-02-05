@@ -42,6 +42,8 @@ public class Calculator implements ActionListener
     //initialize font
 	private Font font;
 	
+	
+	//initialize components
 	private JFrame frame;
 	
 	private JTextField inputText;
