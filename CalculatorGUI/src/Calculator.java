@@ -3,6 +3,8 @@
  * Date (created): 2/2/21
  * 
  * A simple java calculator GUI to practice Swing.
+ * 
+ * CLASSES: Calculator and Logic
  */
 
 import java.awt.BorderLayout;
@@ -23,12 +25,19 @@ import javax.swing.UIManager;
 
 public class Calculator implements ActionListener
 {
+	
+	Logic logic; //internal calculator
+	private String currentOp; //tracks current operation
+	private boolean opClicked; //tracks if an operation button should be highlighted
+	private double temp1; //holds first value
+	private double temp2; //holds second value
+	
 	//declare size constants
 	private static final int FRAME_WIDTH = 300;
     private static final int FRAME_HEIGHT = 445;
     private static final int BUTTON_WIDTH = 10;
     private static final int BUTTON_HEIGHT = 15;
-    private static final int GAP = 5;
+    private static final int GAP = 5; //gaps between components/panels
     
     //initialize font
 	private Font font;
@@ -57,6 +66,15 @@ public class Calculator implements ActionListener
 	
 	private void initGUI() 
 	{
+		logic  = new Logic(); //implements calculator logic
+		
+		//initialize variables
+		currentOp = "=";
+		opClicked = false;
+		temp1 = 0.0;
+		temp2 = 0.0;
+		
+		//initialize frame
 		frame = new JFrame();
 		frame.setLayout(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,9 +82,10 @@ public class Calculator implements ActionListener
 		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		frame.setResizable(false);
 		
-		//initialize font and color
+		//initialize font
 		font = new Font("Monospaced", Font.BOLD, 18);
 		
+		//initialize top panel
 		GridLayout topLayout = new GridLayout(2, 1);
 		topLayout.setHgap(GAP);
 		topLayout.setVgap(GAP);
@@ -74,7 +93,9 @@ public class Calculator implements ActionListener
 		
 		//set property of input textfield
 		inputText = new JTextField(20);
-		text = "";
+		inputText.setEditable(false); //user cannot edit text field
+		text = "0";
+		inputText.setText(text);
 		inputText.setForeground(Color.BLACK); //text color
 		inputText.setBackground(Color.WHITE);
 		inputText.setBorder(BorderFactory.createBevelBorder(0));
@@ -83,6 +104,7 @@ public class Calculator implements ActionListener
 		inputText.setFont(new Font("Monospaced", Font.BOLD, 35)); //enlarge input text size
 		topPanel.add(inputText);
 		
+		//initialize delete button panel
 		GridLayout delBtnsLayout = new GridLayout(1, 2);
 		delBtnsLayout.setHgap(GAP);
 		delBtnsLayout.setVgap(GAP);
@@ -100,10 +122,11 @@ public class Calculator implements ActionListener
 		frame.getContentPane().add(btnClear);
 		deleteBtnsPanel.add(btnClear);
 		
-		topPanel.add(deleteBtnsPanel);
+		topPanel.add(deleteBtnsPanel); //put "backspace" and "clear" buttons on delete button panel
 		
-		frame.getContentPane().add(topPanel, BorderLayout.PAGE_START);
+		frame.getContentPane().add(topPanel, BorderLayout.PAGE_START); //add delete button panel to main frame
 		
+		//initialize button panel
 		GridLayout btnsLayout = new GridLayout(1, 2);
 		btnsLayout.setHgap(GAP);
 		btnsLayout.setVgap(GAP);
@@ -186,13 +209,49 @@ public class Calculator implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		//number, decimal, and "equals" buttons
-		for(int index = 0; index < numbers.length; index++)
-		{
-			if(e.getSource() == numbers[index]) {
-				text += e.getActionCommand();
-				System.out.println("Button clicked");
-				inputText.setText(text);				//print previous inputs + button clicked
+		//"equals" button
+		if(e.getSource() == numbers[numbers.length-1]) {
+			opClicked = false;
+			for(int i = 0; i < operations.length; i++) {
+				operations[i].setBorder(BorderFactory.createBevelBorder(0)); //set all operation borders back to default
+			}
+			
+			//calculate
+			temp2 = Double.parseDouble(inputText.getText());
+			if(currentOp.equals("/")) {
+				logic.divide(temp1, temp2);
+				inputText.setText(logic.getTotal());
+			}
+			if(currentOp.equals("x")) {
+				logic.multiply(temp1, temp2);
+				inputText.setText(logic.getTotal());
+			}
+			if(currentOp.equals("-")) {
+				logic.subtract(temp1, temp2);
+				inputText.setText(logic.getTotal());
+			}
+			if(currentOp.equals("+")) {
+				logic.add(temp1, temp2);
+				inputText.setText(logic.getTotal());
+			}
+		}
+		
+		//number and decimal buttons
+		else {
+			for(int index = 0; index < numbers.length-1; index++)
+			{
+				opClicked = false;
+				for(int i = 0; i < operations.length; i++) {
+					operations[i].setBorder(BorderFactory.createBevelBorder(0)); //set all operation borders back to default
+				}
+				
+				if(e.getSource() == numbers[index]) {
+					if(text.equals("0")) { //replace 0
+						text = "";
+					}
+					text += e.getActionCommand();
+					inputText.setText(text); //print previous inputs + button clicked
+				}
 			}
 		}
 		
@@ -200,21 +259,55 @@ public class Calculator implements ActionListener
 		for(int index = 0; index < operations.length; index++)
 		{
 			if(e.getSource() == operations[index]) {
-				text += e.getActionCommand();
-				System.out.println("Button clicked");
-				inputText.setText(text);				//print previous inputs + button clicked
+				opClicked = true;
+				
+				if(opClicked) {
+					for(int i = 0; i < operations.length; i++) {
+						operations[i].setBorder(BorderFactory.createBevelBorder(0)); //set all operation borders back to default
+					}
+				}
+				operations[index].setBorder(BorderFactory.createLineBorder(Color.BLACK, 3)); //highlight current operation
+				
+				currentOp = e.getActionCommand();
+				temp1 = Double.parseDouble(inputText.getText());
+				text = "";
+				inputText.setText(text);
+				
+				//update total (but don't print until "equals" button is pressed)
+				if(currentOp.equals("/")) {
+					logic.divide(temp1, temp2);
+				}
+				if(currentOp.equals("x")) {
+					logic.multiply(temp1, temp2);
+				}
+				if(currentOp.equals("-")) {
+					logic.subtract(temp1, temp2);
+				}
+				if(currentOp.equals("+")) {
+					logic.add(temp1, temp2);
+				}
 			}
 		}
 		
 		//"backspace" button
 		if(e.getSource() == btnBack) {
-			text = text.substring(0, text.length() - 1); //remove most recent input
-			inputText.setText(text);
+			if(text.equals("")) { //do nothing if there is no displayed input
+				
+			}
+			else {
+				text = text.substring(0, text.length() - 1); //remove most recent input
+				inputText.setText(text);
+			}
 		}
 		
 		//"clear" button
 		if(e.getSource() == btnClear) {
-			text = ""; //reset input in textfield
+			logic.clearAll();
+			temp1 = 0.0;
+			temp2 = 0.0;
+			currentOp = "";
+			opClicked = false;
+			text = "0"; //reset input in textfield
 			inputText.setText(text);
 		}
 	}
