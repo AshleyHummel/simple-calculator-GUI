@@ -1,5 +1,8 @@
 # Changelog
 
+## [3.1] - 2021-02-09
+* Multiple calculations can be entered before hitting the "equals" button
+
 ## [3.0] - 2021-02-04
 * Implemented basic logic in calculator
 * Simple calculations function and print correctly, but they are prone to error if inputted incorrectly
