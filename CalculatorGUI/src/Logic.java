@@ -28,7 +28,7 @@ public class Logic
 	}
 	
 	public String getTotal() {
-		df = new DecimalFormat("0.#");
+		df = new DecimalFormat("0.#"); //remove decimal if it is .0
 		return df.format(total);
 	}
 	

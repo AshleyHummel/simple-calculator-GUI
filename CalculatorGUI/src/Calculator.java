@@ -304,10 +304,10 @@ public class Calculator implements ActionListener
 				operations[index].setBorder(BorderFactory.createLineBorder(Color.BLACK, 3)); //highlight current operation
 				
 				if(currentOp.equals("/")) {
-					temp2 = Double.parseDouble(inputText.getText());
+					temp2 = Double.parseDouble(inputText.getText()); //hold most recent number input
 					logic.divide(temp1, temp2);
-					temp1 = Double.parseDouble(logic.getTotal());
-					temp2 = 0;
+					temp1 = Double.parseDouble(logic.getTotal()); //hold calculated total in temp1
+					temp2 = 0; //reset temp2
 				}
 				else if(currentOp.equals("x")) {
 					temp2 = Double.parseDouble(inputText.getText());
