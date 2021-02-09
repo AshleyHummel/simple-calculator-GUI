@@ -32,7 +32,7 @@ public class Logic
 		return df.format(total);
 	}
 	
-	public void clearAll() {
+	public void reset() {
 		total = 0.0;
 	}
 }
