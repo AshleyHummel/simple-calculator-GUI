@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.2] - 2021-02-11
+### Calculator class
+* Error message is displayed when dividing by 0 or pressing an operation button twice in a row
+* Calculator resets if a number is pressed after completing a calculation (rather than an operation)
+* "Calculate" method added to eliminate repeated lines of code
+
+### Logic class
+* Number of decimals able to be shown was expanded to 7 digits
+
 ## [3.1] - 2021-02-09
 * Multiple calculations can be entered before hitting the "equals" button
 
