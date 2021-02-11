@@ -29,6 +29,7 @@ public class Calculator implements ActionListener
 	Logic logic; //internal calculator
 	private String currentOp; //tracks current operation
 	private boolean opClicked; //tracks if an operation button should be highlighted
+	private boolean error; //alerts calculator of an error (such as dividing by 0)
 	private double temp1; //holds first value
 	private double temp2; //holds second value
 	
@@ -72,6 +73,7 @@ public class Calculator implements ActionListener
 		
 		//initialize variables
 		opClicked = false;
+		error = false;
 		temp1 = 0.0;
 		temp2 = 0.0;
 		currentOp = "";
@@ -217,53 +219,18 @@ public class Calculator implements ActionListener
 				operations[i].setBorder(BorderFactory.createBevelBorder(0)); //set all operation borders back to default
 			}
 			
-		if(currentOp.equals("/")) {
-			temp2 = Double.parseDouble(inputText.getText());
-			logic.divide(temp1, temp2);
-			System.out.println("Divide " + temp1 + " and " + temp2); //TEST
-			temp1 = Double.parseDouble(logic.getTotal());
-			temp2 = 0;
-			System.out.println("\tTemp1: " + temp1 //TEST
-					+ "\n\tTemp2: " + temp2
-					+ "\n\tTotal: " + logic.getTotal());
-		}
-		else if(currentOp.equals("x")) {
-			temp2 = Double.parseDouble(inputText.getText());
-			logic.multiply(temp1, temp2);
-			System.out.println("Multiply " + temp1 + " and " + temp2); //TEST
-			temp1 = Double.parseDouble(logic.getTotal());
-			temp2 = 0;
-			System.out.println("\tTemp1: " + temp1 //TEST
-					+ "\n\tTemp2: " + temp2
-					+ "\n\tTotal: " + logic.getTotal());
-		}
-		else if(currentOp.equals("-")) {
-			temp2 = Double.parseDouble(inputText.getText());
-			logic.subtract(temp1, temp2);
-			System.out.println("Subtract " + temp1 + " and " + temp2); //TEST
-			temp1 = Double.parseDouble(logic.getTotal());
-			temp2 = 0;
-			System.out.println("\tTemp1: " + temp1 //TEST
-					+ "\n\tTemp2: " + temp2
-					+ "\n\tTotal: " + logic.getTotal());
-		}
-		else if(currentOp.equals("+")) {
-			temp2 = Double.parseDouble(inputText.getText());
-			logic.add(temp1, temp2);
-			System.out.println("Add " + temp1 + " and " + temp2); //TEST
-			temp1 = Double.parseDouble(logic.getTotal());
-			temp2 = 0;
-			System.out.println("\tTemp1: " + temp1 //TEST
-					+ "\n\tTemp2: " + temp2
-					+ "\n\tTotal: " + logic.getTotal());
-		}
-		else {
-			temp1 = Double.parseDouble(inputText.getText());
-		}
-		
-		inputText.setText(logic.getTotal());
-		
-		currentOp = "=";
+			if(!error) {
+				calculate();
+			}
+			
+			if(!error) {
+				currentOp = "=";
+				inputText.setText(logic.getTotal());
+			}
+			else {
+				text = "ERROR";
+				inputText.setText(text);
+			}
 		}
 		
 		//number and decimal buttons
@@ -275,19 +242,25 @@ public class Calculator implements ActionListener
 					operations[i].setBorder(BorderFactory.createBevelBorder(0)); //set all operation borders back to default
 				}
 				
-				if(e.getSource() == numbers[index]) {
-					//reset everything if a number if pressed after a calculation is completed ("equals" button pressed)
-					// --> calculator assumes that the user is starting a new calculation
+				if(e.getSource() == numbers[index]) 
+				{
+					if(!error) { //number buttons function ONLY if "ERROR" is not currently displayed
+						//reset everything if a number if pressed after a calculation is completed ("equals" button pressed)
+						// --> calculator assumes that the user is starting a new calculation
+						if(currentOp.equals("=")) {
+							reset();
+						}
+						
+						if(inputText.getText().equals("0")) { //replace 0
+							text = "";
+						}
+						
+						text += e.getActionCommand();
+						}
 					
-					if(inputText.getText().equals("0")) { //replace 0
-						text = "";
+						inputText.setText(text); //print previous inputs + button clicked
 					}
-					
-					text += e.getActionCommand();
 				}
-				
-				inputText.setText(text); //print previous inputs + button clicked
-			}
 		}
 		
 		//operation (divide, multiply, add, subtract) buttons
@@ -303,51 +276,42 @@ public class Calculator implements ActionListener
 				}
 				operations[index].setBorder(BorderFactory.createLineBorder(Color.BLACK, 3)); //highlight current operation
 				
-				if(currentOp.equals("/")) {
-					temp2 = Double.parseDouble(inputText.getText()); //hold most recent number input
-					logic.divide(temp1, temp2);
-					temp1 = Double.parseDouble(logic.getTotal()); //hold calculated total in temp1
-					temp2 = 0; //reset temp2
-				}
-				else if(currentOp.equals("x")) {
-					temp2 = Double.parseDouble(inputText.getText());
-					logic.multiply(temp1, temp2);
-					temp1 = Double.parseDouble(logic.getTotal());
-					temp2 = 0;
-				}
-				else if(currentOp.equals("-")) {
-					temp2 = Double.parseDouble(inputText.getText());
-					logic.subtract(temp1, temp2);
-					temp1 = Double.parseDouble(logic.getTotal());
-					temp2 = 0;
-				}
-				else if(currentOp.equals("+")) {
-					temp2 = Double.parseDouble(inputText.getText());
-					logic.add(temp1, temp2);
-					temp1 = Double.parseDouble(logic.getTotal());
-					temp2 = 0;
-				}
-				else if(currentOp.equals("=")) {
-					//keep temp1 as the previous total value
+				if(!error && text != "") { //operation buttons function ONLY after a number in inputted and if "ERROR" is not currently displayed
+					calculate();
 				}
 				else {
-					temp1 = Double.parseDouble(inputText.getText());
+					error = true;
 				}
-				
-				currentOp = e.getActionCommand();
-				text = "";
-				inputText.setText(text);
+					
+				if(!error) {
+					currentOp = e.getActionCommand();
+					text = "";
+					inputText.setText(text);
+				}
+				else {
+					text = "ERROR";
+					inputText.setText(text);
+				}
 			}
 		}
 		
 		//"backspace" button
 		if(e.getSource() == btnBack) {
-			if(text.equals("")) { //do nothing if there is no displayed input
-				
-			}
-			else {
-				text = text.substring(0, text.length() - 1); //remove most recent input
-				inputText.setText(text);
+			if(!error) {
+				//do not backspace if a calculation was just complete
+				if(currentOp.equals("=")) {
+					System.out.println("ERROR: Cannot backspace directly after a calculation!");
+					inputText.setText(logic.getTotal());
+				}
+				else {
+					if(text.equals("")) { //do nothing if there is no displayed input
+						
+					}
+					else {
+						text = text.substring(0, text.length() - 1); //remove most recent input
+						inputText.setText(text);
+					}
+				}
 			}
 		}
 		
@@ -355,9 +319,11 @@ public class Calculator implements ActionListener
 		if(e.getSource() == btnClear) {
 			reset();
 			opClicked = false;
+			error = false;
 		}
 	}
 	
+	//resets current total, holding variables, operation, and textfield display
 	private void reset() {
 		logic.reset();
 		temp1 = 0.0;
@@ -365,6 +331,54 @@ public class Calculator implements ActionListener
 		currentOp = "";
 		text = "0"; //reset textfield display
 		inputText.setText(text);
+	}
+	
+	//conducts calculations when an operation button (add, subtract, multiply, divide, equals) is pressed
+	private void calculate() {
+		if(currentOp.equals("/")) {
+			temp2 = Double.parseDouble(inputText.getText()); //hold most recent number input
+			
+			if(temp2 != 0) { //prevents user from dividing by 0
+				logic.divide(temp1, temp2);
+				
+				//stores calculated number in temp1, resets temp2
+				temp1 = Double.parseDouble(logic.getTotal()); //hold calculated total in temp1
+				temp2 = 0; //reset temp2
+			}
+			else {
+				error = true; //error alert if user divides by 0
+			}
+		}
+		else if(currentOp.equals("x")) {
+			temp2 = Double.parseDouble(inputText.getText());
+			logic.multiply(temp1, temp2);
+			
+			//stores calculated number in temp1, resets temp2
+			temp1 = Double.parseDouble(logic.getTotal());
+			temp2 = 0;
+		}
+		else if(currentOp.equals("-")) {
+			temp2 = Double.parseDouble(inputText.getText());
+			logic.subtract(temp1, temp2);
+			
+			//stores calculated number in temp1, resets temp2
+			temp1 = Double.parseDouble(logic.getTotal());
+			temp2 = 0;
+		}
+		else if(currentOp.equals("+")) {
+			temp2 = Double.parseDouble(inputText.getText());
+			logic.add(temp1, temp2);
+			
+			//stores calculated number in temp1, resets temp2
+			temp1 = Double.parseDouble(logic.getTotal());
+			temp2 = 0;
+		}
+		else if(currentOp.equals("=")) {
+			//keep temp1 as the previous total value
+		}
+		else { //assumes user is beginning their calculations
+			temp1 = Double.parseDouble(inputText.getText());
+		}
 	}
 
 	public static void main(String[] args) 
